@@ -1,691 +1,86 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>মুড বেসড মিউজিক প্লেয়ার</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .input-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .result-section {
-            display: none;
-        }
-
-        .music-list {
-            margin-top: 20px;
-        }
-
-        .music-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .music-item:hover {
-            border-color: #667eea;
-            transform: translateX(5px);
-        }
-
-        .music-icon {
-            font-size: 24px;
-            margin-right: 15px;
-        }
-
-        .music-info {
-            flex: 1;
-        }
-
-        .music-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .music-platform {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .play-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            display: none;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        .error-message {
-            background: #ffeaa7;
-            color: #d63031;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-            display: none;
-        }
-
-        .api-key-section {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
-        }
-
-        .api-key-section h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .weather-analysis {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            border-left: 5px solid #2196f3;
-        }
-
-        .weather-analysis h3 {
-            color: #1976d2;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .weather-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .weather-stat {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .weather-stat .value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #1976d2;
-        }
-
-        .weather-stat .label {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mood Analyzer — Gemini + Deepseak (Safe)</title>
+  <style>
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;max-width:920px;margin:28px auto;padding:18px;color:#0b1220}
+    h1{font-size:20px;margin-bottom:6px}
+    label{display:block;margin:12px 0 6px}
+    textarea{width:100%;min-height:120px;padding:10px;border-radius:8px;border:1px solid #ddd}
+    input[type=text]{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    button{padding:10px 14px;border-radius:10px;border:0;background:#0b76ef;color:white;font-weight:600;cursor:pointer}
+    .result{margin-top:16px;border-radius:8px;padding:14px;background:#fbfcff;border:1px solid #eef3ff}
+    pre{white-space:pre-wrap;font-family:inherit}
+    .provider-box{display:flex;gap:8px;align-items:center}
+    .muted{color:#6b7280;font-size:13px}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎵 মুড বেসড মিউজিক</h1>
-            <p>আপনার লোকেশন এবং মুড দিন, আমরা পারফেক্ট মিউজিক সাজেস্ট করব</p>
-        </div>
+  <h1>Mood Analyzer — Gemini & Deepseak (Safe)</h1>
+  <p class="muted">This frontend talks to a local proxy server (`/api/analyze`) which reads your API keys from the server `.env` file. Keep your `.env` secret.</p>
 
-        <div class="api-key-section">
-            <h3>⚠️ API Keys সেটআপ প্রয়োজন</h3>
-            <p>এই ওয়েবসাইটটি কাজ করতে নিচের API Keys গুলো প্রয়োজন:</p>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Gemini API:</strong> <a href="https://aistudio.google.com/app/apikey" target="_blank">এখানে থেকে নিন</a> (Weather analysis এর জন্য)</li>
-                <li><strong>DeepSeek API:</strong> <a href="https://platform.deepseek.com/" target="_blank">এখানে থেকে নিন</a> (Music recommendation এর জন্য)</li>
-            </ul>
-        </div>
+  <label for="inputText">Your text (amar likhe text):</label>
+  <textarea id="inputText" placeholder="Paste the text you want Gemini & Deepseak to analyze..."></textarea>
 
-        <div class="input-section">
-            <div class="form-group">
-                <label for="location">📍 আপনার লোকেশন (শহর/এলাকা):</label>
-                <input type="text" id="location" placeholder="যেমন: ঢাকা, বাংলাদেশ" value="Dhaka, Bangladesh">
-            </div>
+  <label>Choose providers:</label>
+  <div class="provider-box">
+    <input type="checkbox" id="useGemini" checked>
+    <label for="useGemini">Gemini</label>
+    <input type="checkbox" id="useDeepseak" checked style="margin-left:10px">
+    <label for="useDeepseak">Deepseak</label>
+  </div>
 
-            <div class="form-group">
-                <label for="mood">😊 আপনার বর্তমান মুড:</label>
-                <select id="mood">
-                    <option value="happy">😊 Happy - খুশি</option>
-                    <option value="sad">😔 Sad - দুঃখ</option>
-                    <option value="relaxed">😌 Relaxed - রিল্যাক্স</option>
-                    <option value="energetic">⚡ Energetic - এনার্জেটিক</option>
-                    <option value="romantic">💖 Romantic - রোমান্টিক</option>
-                    <option value="focused">🎯 Focused - ফোকাসড</option>
-                    <option value="nostalgic">📸 Nostalgic - নস্টালজিক</option>
-                </select>
-            </div>
+  <label for="tone">Desired output tone (optional)</label>
+  <input id="tone" type="text" placeholder="e.g. poetic, clinical, empathetic (default: empathetic)">
 
-            <div class="form-group">
-                <label for="additionalContext">📝 অতিরিক্ত বিবরণ (যদি থাকে):</label>
-                <textarea id="additionalContext" placeholder="যেমন: রেইনি দিন, একটু মন খারাপ... বা অফিস থেকে ফিরেছি, রিল্যাক্স করতে চাই..."></textarea>
-            </div>
+  <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+    <button id="analyzeBtn">Analyze</button>
+    <button id="clearBtn" style="background:#e6e6e6;color:#111">Clear</button>
+    <div class="muted" style="margin-left:8px">Result will appear below in a full-length structured format.</div>
+  </div>
 
-            <div class="form-group">
-                <label for="geminiApiKey">🌤️ Gemini API Key (Weather Analysis):</label>
-                <input type="password" id="geminiApiKey" placeholder="আপনার Gemini API Key দিন">
-            </div>
+  <div id="output" class="result" aria-live="polite" style="display:none"></div>
 
-            <div class="form-group">
-                <label for="deepseekApiKey">🤖 DeepSeek API Key (Music Recommendation):</label>
-                <input type="password" id="deepseekApiKey" placeholder="আপনার DeepSeek API Key দিন">
-            </div>
+  <script>
+    function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}
 
-            <button class="btn" onclick="getMusicRecommendations()">🎵 মিউজিক রিকমেন্ডেশন নিন</button>
-        </div>
+    async function analyze(){
+      const text = document.getElementById('inputText').value.trim();
+      const useGem = document.getElementById('useGemini').checked;
+      const useDeep = document.getElementById('useDeepseak').checked;
+      const tone = document.getElementById('tone').value.trim() || 'empathetic';
+      const output = document.getElementById('output');
+      if(!text){ alert('Please paste the text you want analyzed.'); return; }
+      if(!useGem && !useDeep){ alert('Select at least one provider.'); return; }
 
-        <div class="error-message" id="errorMessage"></div>
+      output.style.display = 'block';
+      output.innerHTML = '<em>Contacting local server…</em>';
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>আবহাওয়া বিশ্লেষণ করা হচ্ছে... আপনার মুড অ্যানালাইসিস করা হচ্ছে... মিউজিক খুঁজে বের করা হচ্ছে...</p>
-        </div>
-
-        <div class="result-section" id="resultSection">
-            <h2>🎶 আপনার জন্য রিকমেন্ডেড মিউজিক</h2>
-            
-            <div class="weather-analysis" id="weatherAnalysis" style="display: none;">
-                <!-- Weather analysis will be shown here -->
-            </div>
-            
-            <div class="music-list" id="musicList">
-                <!-- Music items will be added here dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        async function getMusicRecommendations() {
-            // Show loading, hide previous results and errors
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('weatherAnalysis').style.display = 'none';
-
-            // Get user inputs
-            const location = document.getElementById('location').value;
-            const mood = document.getElementById('mood').value;
-            const additionalContext = document.getElementById('additionalContext').value;
-            const GEMINI_API_KEY = document.getElementById('geminiApiKey').value;
-            const DEEPSEEK_API_KEY = document.getElementById('deepseekApiKey').value;
-
-            // Validate API keys
-            if (!GEMINI_API_KEY || !DEEPSEEK_API_KEY) {
-                showError('দয়া করে উভয় API Key প্রদান করুন।');
-                document.getElementById('loading').style.display = 'none';
-                return;
-            }
-
-            if (!location) {
-                showError('দয়া করে আপনার লোকেশন লিখুন।');
-                document.getElementById('loading').style.display = 'none';
-                return;
-            }
-
-            try {
-                // Step 1: Get detailed weather analysis using Gemini
-                const weatherAnalysis = await getWeatherAnalysis(location, GEMINI_API_KEY);
-                
-                // Display weather analysis
-                displayWeatherAnalysis(weatherAnalysis);
-                
-                // Step 2: Analyze mood and get music recommendations using DeepSeek
-                const musicRecommendations = await analyzeMoodAndGetMusic(
-                    mood, 
-                    additionalContext, 
-                    weatherAnalysis,
-                    DEEPSEEK_API_KEY
-                );
-
-                // Step 3: Display music recommendations
-                displayMusicList(musicRecommendations);
-
-            } catch (error) {
-                console.error('Error:', error);
-                showError('কিছু সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন। ত্রুটি: ' + error.message);
-            } finally {
-                // Hide loading
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
-
-        async function getWeatherAnalysis(location, apiKey) {
-            try {
-                const prompt = `
-                    Location: ${location}
-                    Current Date: ${new Date().toLocaleDateString('bn-BD')}
-                    
-                    Please provide detailed weather analysis for this location including:
-                    1. Current temperature and weather condition
-                    2. Temperature trends (rising/falling/stable)
-                    3. Comparison with previous days
-                    4. Weather patterns and variations
-                    5. Any notable weather events
-                    6. Overall weather impact on mood
-                    
-                    Return as a JSON object with this exact structure:
-                    {
-                        "location": "city name",
-                        "current_temp": "current temperature",
-                        "condition": "weather condition",
-                        "trend": "temperature trend description",
-                        "comparison": "comparison with previous days",
-                        "patterns": "weather patterns description", 
-                        "impact": "weather impact on mood",
-                        "summary": "overall weather summary"
-                    }
-                    
-                    Make the response in Bengali where appropriate.
-                `;
-
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: prompt
-                            }]
-                        }],
-                        generationConfig: {
-                            temperature: 0.7,
-                            maxOutputTokens: 1000,
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    if (response.status === 400) {
-                        throw new Error('Invalid Gemini API Key - দয়া করে সঠিক API Key দিন');
-                    } else if (response.status === 429) {
-                        throw new Error('API Limit exceeded - পরে চেষ্টা করুন');
-                    } else {
-                        throw new Error('Gemini API তে সমস্যা হয়েছে');
-                    }
-                }
-
-                const data = await response.json();
-                
-                if (!data.candidates || !data.candidates[0].content.parts[0].text) {
-                    throw new Error('Gemini response format is invalid');
-                }
-
-                const content = data.candidates[0].content.parts[0].text;
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
-                
-                if (jsonMatch) {
-                    return JSON.parse(jsonMatch[0]);
-                } else {
-                    // Fallback weather data if JSON parsing fails
-                    return getFallbackWeatherData(location);
-                }
-            } catch (error) {
-                console.error('Weather Analysis Error:', error);
-                return getFallbackWeatherData(location);
-            }
-        }
-
-        function getFallbackWeatherData(location) {
-            // Simple fallback weather data
-            const temperatures = [28, 29, 27, 30, 26, 31, 29];
-            const currentTemp = temperatures[Math.floor(Math.random() * temperatures.length)];
-            const trends = ['স্থিতিশীল', 'বৃদ্ধি পাচ্ছে', 'হ্রাস পাচ্ছে'];
-            const conditions = ['রৌদ্রোজ্জ্বল', 'মেঘলা', 'হালকা বৃষ্টি', 'আদ্র'];
-            
-            return {
-                location: location,
-                current_temp: `${currentTemp}°C`,
-                condition: conditions[Math.floor(Math.random() * conditions.length)],
-                trend: trends[Math.floor(Math.random() * trends.length)],
-                comparison: `গত ৩ দিনের তুলনায় ${currentTemp > 28 ? 'গরম' : 'শীতল'}`,
-                patterns: "সাম্প্রতিক দিনগুলোতে তাপমাত্রার ওঠানামা চলছে",
-                impact: "আবহাওয়া আপনার মুডকে প্রভাবিত করতে পারে",
-                summary: `${location} এ বর্তমান আবহাওয়া ${currentTemp}°C তাপমাত্রা সহ সাধারণ`
-            };
-        }
-
-        function displayWeatherAnalysis(weatherData) {
-            const weatherElement = document.getElementById('weatherAnalysis');
-            
-            weatherElement.innerHTML = `
-                <h3>🌤️ বিস্তারিত আবহাওয়া বিশ্লেষণ</h3>
-                
-                <div class="weather-stats">
-                    <div class="weather-stat">
-                        <div class="value">${weatherData.current_temp}</div>
-                        <div class="label">বর্তমান তাপমাত্রা</div>
-                    </div>
-                    <div class="weather-stat">
-                        <div class="value">${weatherData.condition}</div>
-                        <div class="label">আবহাওয়ার অবস্থা</div>
-                    </div>
-                    <div class="weather-stat">
-                        <div class="value">${weatherData.trend}</div>
-                        <div class="label">তাপমাত্রার প্রবণতা</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 15px;">
-                    <p><strong>📍 লোকেশন:</strong> ${weatherData.location}</p>
-                    <p><strong>📊 তুলনা:</strong> ${weatherData.comparison}</p>
-                    <p><strong>🔍 প্যাটার্ন:</strong> ${weatherData.patterns}</p>
-                    <p><strong>💭 মুড ইমপ্যাক্ট:</strong> ${weatherData.impact}</p>
-                    <p><strong>📝 সারসংক্ষেপ:</strong> ${weatherData.summary}</p>
-                </div>
-            `;
-            
-            weatherElement.style.display = 'block';
-        }
-
-        async function analyzeMoodAndGetMusic(mood, context, weatherData, apiKey) {
-            try {
-                const prompt = `
-                User Context Analysis:
-                - User Mood: ${mood}
-                - Additional Context: ${context || "None provided"}
-                - Weather Analysis: 
-                  * Location: ${weatherData.location}
-                  * Temperature: ${weatherData.current_temp}
-                  * Condition: ${weatherData.condition}
-                  * Trend: ${weatherData.trend}
-                  * Comparison: ${weatherData.comparison}
-                  * Patterns: ${weatherData.patterns}
-                  * Impact: ${weatherData.impact}
-                - Time: ${new Date().toLocaleTimeString('bn-BD')}
-                - Date: ${new Date().toLocaleDateString('bn-BD')}
-
-                Based on this comprehensive context, recommend 6-8 specific songs that would perfectly match the user's current situation, mood, and weather conditions.
-                Include songs from both YouTube and Spotify.
-
-                Return format MUST be valid JSON array only, no other text:
-                [
-                    {
-                        "title": "Song Name",
-                        "artist": "Artist Name", 
-                        "platform": "youtube/spotify",
-                        "url": "song_name_artist_search_query",
-                        "reason": "বাংলায় ব্যাখ্যা করুন কেন এই গান বর্তমান মুড এবং আবহাওয়ার সাথে মানানসই"
-                    }
-                ]
-
-                Focus on popular Bengali/Indian and International songs that match the mood, weather, and context.
-                Consider how weather affects mood and suggest appropriate music.
-                `;
-
-                const response = await fetch('https://api.deepseek.com/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: "deepseek-chat",
-                        messages: [{ role: "user", content: prompt }],
-                        max_tokens: 2000,
-                        temperature: 0.7
-                    })
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('Invalid DeepSeek API Key - দয়া করে সঠিক API Key দিন');
-                    } else {
-                        throw new Error('DeepSeek API তে সমস্যা হয়েছে');
-                    }
-                }
-
-                const data = await response.json();
-                
-                if (!data.choices || !data.choices[0]) {
-                    throw new Error('AI response format is invalid');
-                }
-
-                // Extract JSON from the response
-                const content = data.choices[0].message.content;
-                const jsonMatch = content.match(/\[[\s\S]*\]/);
-                
-                if (jsonMatch) {
-                    return JSON.parse(jsonMatch[0]);
-                } else {
-                    throw new Error('AI could not generate proper music recommendations');
-                }
-            } catch (error) {
-                console.error('AI Analysis Error:', error);
-                // Return fallback music list
-                return getFallbackMusicList(mood, weatherData);
-            }
-        }
-
-        function displayMusicList(musicList) {
-            const musicListElement = document.getElementById('musicList');
-            musicListElement.innerHTML = '';
-
-            if (!musicList || musicList.length === 0) {
-                musicListElement.innerHTML = '<p>কোনো মিউজিক রিকমেন্ডেশন পাওয়া যায়নি। দয়া করে আবার চেষ্টা করুন।</p>';
-                document.getElementById('resultSection').style.display = 'block';
-                return;
-            }
-
-            musicList.forEach((music, index) => {
-                const musicItem = document.createElement('div');
-                musicItem.className = 'music-item';
-                musicItem.innerHTML = `
-                    <div class="music-icon">
-                        ${music.platform === 'youtube' ? '📺' : '🎵'}
-                    </div>
-                    <div class="music-info">
-                        <div class="music-title">${music.title} - ${music.artist}</div>
-                        <div class="music-platform">${music.platform.toUpperCase()} • ${music.reason}</div>
-                    </div>
-                    <button class="play-btn" onclick="playMusic('${music.url.replace(/'/g, "\\'")}', '${music.platform}')">
-                        Play
-                    </button>
-                `;
-                musicListElement.appendChild(musicItem);
-            });
-
-            // Show result section
-            document.getElementById('resultSection').style.display = 'block';
-        }
-
-        function playMusic(url, platform) {
-            if (platform === 'youtube') {
-                // Search on YouTube
-                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(url)}`, '_blank');
-            } else if (platform === 'spotify') {
-                // Search on Spotify
-                window.open(`https://open.spotify.com/search/${encodeURIComponent(url)}`, '_blank');
-            }
-        }
-
-        function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-
-        // Enhanced fallback music list with weather consideration
-        function getFallbackMusicList(mood, weatherData) {
-            const isRainy = weatherData.condition.includes('বৃষ্টি');
-            const isHot = parseInt(weatherData.current_temp) > 30;
-            const isCold = parseInt(weatherData.current_temp) < 20;
-
-            const weatherContext = isRainy ? 'বৃষ্টির দিনের জন্য' : 
-                                 isHot ? 'গরম দিনের জন্য' :
-                                 isCold ? 'শীতল দিনের জন্য' : '';
-
-            const fallbackLists = {
-                happy: [
-                    {
-                        title: "Uptown Funk",
-                        artist: "Mark Ronson ft. Bruno Mars",
-                        platform: "youtube",
-                        url: "Uptown Funk Bruno Mars",
-                        reason: `${weatherContext} খুশি মুডের জন্য পারফেক্ট এনার্জেটিক গান`
-                    },
-                    {
-                        title: "চলো বেড়িয়ে আসি",
-                        artist: "জেমস",
-                        platform: "youtube",
-                        url: "চলো বেড়িয়ে আসি জেমস",
-                        reason: `${weatherContext} বাংলা হ্যাপি সঙ্গীত`
-                    }
-                ],
-                sad: [
-                    {
-                        title: "Someone Like You",
-                        artist: "Adele",
-                        platform: "youtube",
-                        url: "Someone Like You Adele",
-                        reason: `${weatherContext} দুঃখ ভরা মুডের জন্য এমোশনাল গান`
-                    }
-                ],
-                relaxed: [
-                    {
-                        title: "নীলা",
-                        artist: "আয়ন বন্দ্যোপাধ্যায়",
-                        platform: "youtube",
-                        url: "নীলা আয়ন বন্দ্যোপাধ্যায়",
-                        reason: `${weatherContext} শান্তিপূর্ণ বাংলা গান`
-                    }
-                ]
-            };
-
-            return fallbackLists[mood] || fallbackLists.happy;
-        }
-
-        // Enter key support for the form
-        document.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                getMusicRecommendations();
-            }
+      try{
+        const res = await fetch('/api/analyze', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({text, providers:{gemini:useGem, deepseak:useDeep}, tone})
         });
+        if(!res.ok){ const t = await res.text(); throw new Error('Server error: '+t); }
+        const json = await res.json();
+        // Build full-length merged view
+        let html = `<strong>Original text</strong><pre>${escapeHtml(text)}</pre><hr>`;
+        for(const p of Object.keys(json)){
+          html += `<h3>Analysis from ${escapeHtml(p)}</h3>`;
+          html += `<pre>${escapeHtml(JSON.stringify(json[p], null, 2))}</pre><hr>`;
+        }
+        output.innerHTML = html;
+      }catch(err){
+        output.innerHTML = `<strong style=\"color:#b91c1c\">Error:</strong> ${escapeHtml(err.message||err)} `;
+      }
+    }
 
-        // Instructions for getting API keys
-        console.log(`
-API Keys পাওয়ার জন্য:
-1. Gemini API: https://aistudio.google.com/app/apikey - Free tier আছে
-2. DeepSeek API: https://platform.deepseek.com/ - Free credits দিয়ে থাকে
-        `);
-    </script>
+    document.getElementById('analyzeBtn').addEventListener('click', analyze);
+    document.getElementById('clearBtn').addEventListener('click', ()=>{document.getElementById('inputText').value='';document.getElementById('output').style.display='none'});
+  </script>
 </body>
 </html>

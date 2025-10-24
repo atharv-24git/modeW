@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mood Analyzer — Gemini + DeepSeek (Client Side)</title>
+  <style>
+* {margin:0; padding:0; box-sizing:border-box;}
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width:1000px; margin:0 auto; padding:20px;
+  background: linear-gradient(135deg,#f7d7e3,#c3f0f2); 
+  min-height:100vh; color:#333;
+  font-size:16px;
+}
+.container {
+  background:#fff; border-radius:20px; padding:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+h1 {
+  text-align:center; font-size:30px; margin-bottom:12px; color:#5b3e96;
+}
+.subtitle {text-align:center; color:#6b5b95; margin-bottom:25px; font-size:15px;}
+.warning {
+  background:#fff0d6; border:1px solid #ffd8a8;
+  border-radius:10px; padding:14px; margin-bottom:18px; color:#856404; font-size:14px;
+}
+label {display:block; margin-bottom:6px; font-weight:600; color:#4b4b4b; font-size:15px;}
+textarea, input, select {
+  width:100%; padding:14px; border:1px solid #ddd; border-radius:10px;
+  font-family:inherit; font-size:15px; transition:border 0.3s; resize:vertical;
+}
+textarea {min-height:140px;}
+textarea:focus, input:focus, select:focus {border-color:#5b3e96; outline:none;}
+.controls {display:grid; gap:12px; grid-template-columns:1fr 1fr; margin:20px 0;}
+.buttons {display:flex; gap:10px; margin:20px 0;}
+button {
+  padding:12px 18px; border:none; border-radius:10px; font-size:15px;
+  font-weight:600; cursor:pointer; transition:all 0.3s; flex:1;
+}
+#analyzeBtn {background:#5b3e96; color:#fff;}
+#analyzeBtn:hover {background:#482d80; transform:translateY(-2px);}
+#clearBtn {background:#a3a3a3; color:#fff;}
+#clearBtn:hover {background:#888; transform:translateY(-1px);}
+.result {
+  display:none; margin-top:20px; border-radius:12px; border:1px solid #e1e5e9;
+  background:#fff;
+}
+.result-header {background:#5b3e96; color:#fff; padding:14px 18px; border-radius:12px 12px 0 0; font-weight:600; font-size:16px;}
+.result-content {padding:18px;}
+.provider-result {margin-bottom:20px; padding:15px; border:1px solid #e1e5e9; border-radius:10px;}
+.analysis-item h4 {color:#5b3e96; margin-bottom:5px; font-size:15px;}
+.analysis-item p {color:#555; line-height:1.6; font-size:14px;}
+.error {color:#e74c3c; background:#fdf2f2; padding:10px; border-radius:6px; border-left:4px solid #e74c3c; font-size:14px;}
+.loading {text-align:center; padding:18px; color:#5b3e96; font-size:15px;}
+.spinner {border:4px solid #f3f3f3; border-top:4px solid #5b3e96; border-radius:50%; width:38px; height:38px; animation:spin 1s linear infinite; margin:0 auto 10px;}
+@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+@media(max-width:768px){.controls{grid-template-columns:1fr;}.buttons{flex-direction:column;}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎭 Mood Analyzer</h1>
+    <p class="subtitle">Analyze text mood using Gemini & DeepSeek APIs</p>
+
+    <div class="warning">
+      ⚠️ <strong>Important:</strong> This client-side version exposes API keys in browser. Use only for testing. For production, use server-side implementation.
+    </div>
+
+    <div class="api-keys">
+      <h3>🔑 API Configuration</h3>
+      <div class="api-key-input">
+        <label for="geminiKey">Gemini API Key:</label>
+        <input type="text" id="geminiKey" placeholder="Enter your Gemini API key" value="AIzaSyBq31IW6zwGMXSr2av0cAYJQucv1wRsdHM">
+      </div>
+      <div class="api-key-input">
+        <label for="deepseekKey">DeepSeek API Key:</label>
+        <input type="text" id="deepseekKey" placeholder="Enter your DeepSeek API key" value="sk-d5c7aef947624fa5b26c70eab3ad550d">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <label for="inputText">📝 Text to Analyze:</label>
+      <textarea id="inputText" placeholder="Paste the text you want to analyze here..."></textarea>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>🤖 AI Providers:</label>
+        <div class="provider-options">
+          <div class="provider-option">
+            <input type="checkbox" id="useGemini" checked>
+            <label for="useGemini">Gemini</label>
+          </div>
+          <div class="provider-option">
+            <input type="checkbox" id="useDeepseek" checked>
+            <label for="useDeepseek">DeepSeek</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="tone">🎵 Analysis Tone:</label>
+        <select id="tone" class="tone-select">
+          <option value="empathetic">Empathetic</option>
+          <option value="professional">Professional</option>
+          <option value="clinical">Clinical</option>
+          <option value="friendly">Friendly</option>
+          <option value="poetic">Poetic</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="analyzeBtn">🔍 Analyze Mood</button>
+      <button id="clearBtn">🗑️ Clear</button>
+    </div>
+
+    <div id="output" class="result">
+      <div class="result-header">Analysis Results</div>
+      <div class="result-content" id="resultContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // API configuration
+    const API_CONFIG = {
+      gemini: {
+        url: 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent'
+      },
+      deepseek: {
+        url: 'https://api.deepseek.com/v1/chat/completions'
+      }
+    };
+
+    // DOM elements
+    const inputText = document.getElementById('inputText');
+    const useGemini = document.getElementById('useGemini');
+    const useDeepseek = document.getElementById('useDeepseek');
+    const toneSelect = document.getElementById('tone');
+    const geminiKeyInput = document.getElementById('geminiKey');
+    const deepseekKeyInput = document.getElementById('deepseekKey');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const output = document.getElementById('output');
+    const resultContent = document.getElementById('resultContent');
+
+    // Call Gemini API directly from browser
+    async function callGemini(text, tone) {
+      const apiKey = geminiKeyInput.value.trim();
+      if (!apiKey) throw new Error('Gemini API key is required');
+
+      const prompt = `Analyze the following text in a ${tone} tone and provide a comprehensive mood analysis:
+
+"${text}"
+
+Please provide a JSON response with these exact fields:
+- mood: single word or short phrase describing the overall mood
+- emotions: array of 3-4 key emotions detected with confidence scores
+- emotionalIntensity: rating from 1-10
+- suggestedResponse: an empathetic response paragraph
+- writingStyle: observations about writing style, tone, and language use
+- keywords: array of important words or phrases that influenced the analysis`;
+
+      const body = {
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1000
+        }
+      };
+
+      const url = `${API_CONFIG.gemini.url}?key=${apiKey}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const responseText = data.candidates[0].content.parts[0].text;
+        
+        // Try to extract JSON from the response
+        try {
+          const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+          }
+          return { rawResponse: responseText };
+        } catch (e) {
+          return { 
+            rawResponse: responseText,
+            note: 'Could not parse JSON response'
+          };
+        }
+      }
+      
+      throw new Error('Unexpected response format from Gemini');
+    }
+
+    // Call DeepSeek API directly from browser
+    async function callDeepseek(text, tone) {
+      const apiKey = deepseekKeyInput.value.trim();
+      if (!apiKey) throw new Error('DeepSeek API key is required');
+
+      const prompt = `Analyze the following text in a ${tone} tone and provide a comprehensive mood analysis. Return ONLY valid JSON without any additional text:
+
+"${text}"
+
+JSON structure:
+{
+  "mood": "overall mood description",
+  "emotions": ["emotion1", "emotion2", "emotion3"],
+  "emotionalIntensity": 1-10,
+  "suggestedResponse": "empathetic response paragraph",
+  "writingStyle": "writing style observations",
+  "keywords": ["keyword1", "keyword2", "keyword3"]
+}`;
+
+      const body = {
+        model: "deepseek-chat",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+        response_format: { type: "json_object" }
+      };
+
+      const response = await fetch(API_CONFIG.deepseek.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const responseText = data.choices[0].message.content;
+        
+        try {
+          return JSON.parse(responseText);
+        } catch (e) {
+          return { 
+            rawResponse: responseText,
+            note: 'Could not parse JSON response'
+          };
+        }
+      }
+      
+      throw new Error('Unexpected response format from DeepSeek');
+    }
+
+    // Display analysis results
+    function displayResults(originalText, results) {
+      let html = `
+        <div class="analysis-item">
+          <h4>Original Text</h4>
+          <p>${escapeHtml(originalText)}</p>
+        </div>
+      `;
+
+      for (const [provider, data] of Object.entries(results)) {
+        html += `<div class="provider-result">`;
+        html += `<h3>${provider} Analysis</h3>`;
+        
+        if (data.error) {
+          html += `<div class="error"><strong>Error:</strong> ${escapeHtml(data.error)}</div>`;
+        } else if (data.rawResponse) {
+          html += `
+            <div class="analysis-item">
+              <h4>Raw Response</h4>
+              <p>${escapeHtml(data.rawResponse)}</p>
+              ${data.note ? `<p><em>${escapeHtml(data.note)}</em></p>` : ''}
+            </div>
+          `;
+        } else {
+          // Structured response
+          if (data.mood) {
+            html += `
+              <div class="analysis-item">
+                <h4>Overall Mood</h4>
+                <p>${escapeHtml(data.mood)}</p>
+              </div>
+            `;
+          }
+          
+          if (data.emotions) {
+            html += `
+              <div class="analysis-item">
+                <h4>Detected Emotions</h4>
+                <p>${Array.isArray(data.emotions) ? data.emotions.join(', ') : escapeHtml(data.emotions)}</p>
+              </div>
+            `;
+          }
+          
+          if (data.emotionalIntensity) {
+            html += `
+              <div class="analysis-item">
+                <h4>Emotional Intensity</h4>
+                <p>${data.emotionalIntensity}/10</p>
+              </div>
+            `;
+          }
+          
+          if (data.suggestedResponse) {
+            html += `
+              <div class="analysis-item">
+                <h4>Suggested Response</h4>
+                <p>${escapeHtml(data.suggestedResponse)}</p>
+              </div>
+            `;
+          }
+          
+          if (data.writingStyle) {
+            html += `
+              <div class="analysis-item">
+                <h4>Writing Style</h4>
+                <p>${escapeHtml(data.writingStyle)}</p>
+              </div>
+            `;
+          }
+          
+          if (data.keywords) {
+            html += `
+              <div class="analysis-item">
+                <h4>Key Phrases</h4>
+                <p>${Array.isArray(data.keywords) ? data.keywords.map(kw => `<span style="background:#e9ecef;padding:2px 6px;border-radius:4px;margin:2px;">${escapeHtml(kw)}</span>`).join(' ') : escapeHtml(data.keywords)}</p>
+              </div>
+            `;
+          }
+        }
+        
+        html += `</div>`;
+      }
+
+      resultContent.innerHTML = html;
+      output.style.display = 'block';
+    }
+
+    // Utility function to escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Show loading state
+    function showLoading() {
+      resultContent.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Analyzing text mood...</p>
+        </div>
+      `;
+      output.style.display = 'block';
+    }
+
+    // Main analysis function
+    async function analyze() {
+      const text = inputText.value.trim();
+      const tone = toneSelect.value;
+      
+      if (!text) {
+        alert('Please enter some text to analyze.');
+        return;
+      }
+      
+      if (!useGemini.checked && !useDeepseek.checked) {
+        alert('Please select at least one AI provider.');
+        return;
+      }
+
+      showLoading();
+      
+      try {
+        const results = {};
+        
+        if (useGemini.checked) {
+          try {
+            results.Gemini = await callGemini(text, tone);
+          } catch (error) {
+            results.Gemini = { error: error.message };
+          }
+        }
+        
+        if (useDeepseek.checked) {
+          try {
+            results.DeepSeek = await callDeepseek(text, tone);
+          } catch (error) {
+            results.DeepSeek = { error: error.message };
+          }
+        }
+        
+        displayResults(text, results);
+      } catch (error) {
+        resultContent.innerHTML = `
+          <div class="error">
+            <h4>Analysis Failed</h4>
+            <p>${escapeHtml(error.message)}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Clear function
+    function clearAll() {
+      inputText.value = '';
+      output.style.display = 'none';
+      resultContent.innerHTML = '';
+    }
+
+    // Event listeners
+    analyzeBtn.addEventListener('click', analyze);
+    clearBtn.addEventListener('click', clearAll);
+
+    // Enter key support for textarea
+    inputText.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        analyze();
+      }
+    });
+
+    // Add some sample text for testing
+inputText.value = "Feeling overwhelmed with work and deadlines. Sometimes I just want a break, but I have responsibilities to handle.";
+  </script>
+</body>
+</html>
